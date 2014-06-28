@@ -1,8 +1,12 @@
 import socket
+from PIL import Image as pil
+from cStringIO import StringIO
+from SimpleCV import Image, Display
 
-HOST = 'localhost'
+display = Display()
+
+HOST = '192.168.2.19'
 PORT = 8000
-OUT_FILE = 'output'
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
@@ -11,12 +15,13 @@ conn, addr = s.accept()
 
 print 'Connected by', addr
 
-output = open(OUT_FILE, 'w')
 while 1:
-    data = conn.recv(1024)
-    if not data: break
-    output.write(data)
-
-output.flush()
-output.close()
-conn.close()
+    b = ''
+    while 1:
+        data = conn.recv(1024)
+        if not data: break
+        b += data
+    
+    if len(b) > 0:
+        img = Image(pil.open(StringIO(b)))
+        img.save(display)
